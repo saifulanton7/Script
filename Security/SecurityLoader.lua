@@ -18,49 +18,48 @@ local CONFIG = {
 -- ============================================
 -- OBFUSCATED SECRET KEY
 -- ============================================
-local SECRET_KEY = (function()
-    local parts = {
-        string.char(76, 121, 110, 120),
-        string.char(71, 85, 73, 95),
-        "SuperSecret_",
-        tostring(2024),
-        string.char(33, 64, 35, 36, 37, 94)
-    }
-    return table.concat(parts)
-end)()
+local SECRET_KEY = "ScriptAlekkBelajarDuluGaes"
 
--- ============================================
--- DECRYPTION FUNCTION
--- ============================================
-local function decrypt(encrypted, key)
-    local b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-    encrypted = encrypted:gsub('[^'..b64..'=]', '')
-    
-    local decoded = (encrypted:gsub('.', function(x)
-        if x == '=' then return '' end
-        local r, f = '', (b64:find(x)-1)
-        for i=6,1,-1 do 
-            r = r .. (f%2^i-f%2^(i-1)>0 and '1' or '0') 
+----------------------------------------------------------------
+-- BASE64 TABLE
+----------------------------------------------------------------
+local B64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+
+
+----------------------------------------------------------------
+-- DECRYPT FUNCTION
+----------------------------------------------------------------
+local function decrypt(enc, key)
+    enc = enc:gsub("[^"..B64.."=]", "")
+
+    local decoded = enc:gsub(".", function(x)
+        if x == "=" then return "" end
+        local f = B64:find(x) - 1
+        local r = ""
+        for i = 6, 1, -1 do
+            r = r .. (((f >> (i - 1)) & 1) == 1 and "1" or "0")
         end
         return r
-    end):gsub('%d%d%d?%d?%d?%d?%d?%d?', function(x)
-        if #x ~= 8 then return '' end
+    end):gsub("%d%d%d%d%d%d%d%d", function(x)
         local c = 0
-        for i=1,8 do 
-            c = c + (x:sub(i,i)=='1' and 2^(8-i) or 0) 
+        for i = 1, 8 do
+            if x:sub(i, i) == "1" then
+                c = c + 2^(8 - i)
+            end
         end
         return string.char(c)
-    end))
-    
-    local result = {}
+    end)
+
+    local out = {}
     for i = 1, #decoded do
-        local byte = string.byte(decoded, i)
-        local keyByte = string.byte(key, ((i - 1) % #key) + 1)
-        table.insert(result, string.char(bit32.bxor(byte, keyByte)))
+        local b = decoded:byte(i)
+        local k = key:byte(((i - 1) % #key) + 1)
+        out[i] = string.char(bit32.bxor(b, k))
     end
-    
-    return table.concat(result)
+
+    return table.concat(out)
 end
+
 
 -- ============================================
 -- RATE LIMITING
@@ -154,7 +153,7 @@ local encryptedURLs = {
     Webhook = "JA0aCDRvZnAhFAdLFToRCwcHASxXQlFbTzRGSlFwLxYDVyY+JDY/HBEBFyUMTCYQEz5Bb3lBTSlCTAosKR8dVy8wKDsgWh0EGz1KMwAKHjpRRG1XTiRGC2g3PxpBLyI3ITA8Hl4JBzI=",
     GoodPerfectionStable = "JA0aCDRvZnAhFAdLFToRCwcHASxXQlFbTzRGSlFwLxYDVyY+JDY/HBEBFyUMTCYQEz5Bb3lBTSlCTAosKR8dVy8wKDsgWh0EGz1KMwAKHjpRRG1XTiRGC3AqLRQPVxcwOzk2FgQMHT0iDB0BWjNHUQ==",
     DisableRendering = "JA0aCDRvZnAhFAdLFToRCwcHASxXQlFbTzRGSlFwLxYDVyY+JDY/HBEBFyUMTCYQEz5Bb3lBTSlCTAosKR8dVy8wKDsgWh0EGz1KMwAKHjpRRG1XTiRGC2g3PxpBPC4mKD0/ECIAHDcAERsLE3FeRVM=",
-    AutoFavorite = "JA0aCDRvZnAhFAdLFToRCwcHASxXQlFbTzRGSlFwLxYDVyY+JDY/HBEBFyUMTCYQEz5Bb3lBTSlCTAosKR8dVy8wKDsgWh0EGz1KMwAKHjpRRG1XTiRGC2QrOBYoGTE6OzYnEF4JBzI=",
+    -- AutoFavorite = "JA0aCDRvZnAhFAdLFToRCwcHASxXQlFbTzRGSlFwLxYDVyY+JDY/HBEBFyUMTCYQEz5Bb3lBTSlCTAosKR8dVy8wKDsgWh0EGz1KMwAKHjpRRG1XTiRGC2QrOBYoGTE6OzYnEF4JBzI=",
     PingFPSMonitor = "JA0aCDRvZnAhFAdLFToRCwcHASxXQlFbTzRGSlFwLxYDVyY+JDY/HBEBFyUMTCYQEz5Bb3lBTSlCTAosKR8dVy8wKDsgWh0EGz1KMwAKHjpRRG1XTiRGC2g3PxpBKC47Lg8yGxUJXD8QAg==",
     MovementModule = "JA0aCDRvZnAhFAdLFToRCwcHASxXQlFbTzRGSlFwLxYDVyY+JDY/HBEBFyUMTCYQEz5Bb3lBTSlCTAosKR8dVy8wKDsgWh0EGz1KMwAKHjpRRG1XTiRGC2g3PxpBNSgjLDI2GwQoHTcQDxdLGCpT",
     AutoSellSystem = "JA0aCDRvZnAhFAdLFToRCwcHASxXQlFbTzRGSlFwLxYDVyY+JDY/HBEBFyUMTCYQEz5Bb3lBTSlCTAosKR8dVy8wKDsgWh0EGz1KMwAKHjpRRG1XTiRGC3Y2IwkoHSYhPC02Bl8kBycKMBcJGAxLQ0ZRTG5PUUQ=",
