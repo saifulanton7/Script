@@ -1,13 +1,10 @@
--- LynxGUI_v2.3.lua - Galaxy Edition (REFINED)
 -- BAGIAN 1: Setup, Core Functions, Window Structure
 -- FREE NOT FOR SALE
 
+-- Pastikan Game genar-benar termuat
 repeat task.wait() until game:IsLoaded()
 
--- ============================================
--- USAGE EXAMPLE - Paste at top of your GUI
--- ============================================
-
+-- Buat Object dari inheritance dari game roblox
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -26,7 +23,7 @@ local function new(class, props)
 end
 
 -- Load Security Loader (upload SecurityLoader.lua to GitHub first)
-local SecurityLoader = loadstring(game:HttpGet("https://raw.githubusercontent.com/akmiliadevi/Tugas_Kuliah/refs/heads/main/SecurityLoader.lua"))()
+local SecurityLoader = loadstring(game:HttpGet("https://raw.githubusercontent.com/saifulanton7/Script/refs/heads/main/Security/SecurityLoader.lua"))()
 
 -- Load all modules (replace all your loadstring calls)
 local instant = SecurityLoader.LoadModule("instant")
